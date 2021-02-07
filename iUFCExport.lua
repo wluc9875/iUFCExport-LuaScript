@@ -150,11 +150,18 @@ end
 
 --
 -- Sends instrument data and displays content to the iPad every 0.2 seconds
+-- Check current aircraft every 2 seconds, to support multi-player and aircraft change in middle of game
 --
 
 local nextUpdate = 0
+local nextAircraftCheck = 0
 LuaExportAfterNextFrame = function()
 	local curTime = LoGetModelTime()
+	
+	if curTime >= nextAircraftCheck then
+		nextAircraftCheck = curTime + 2
+		aircraft = LoGetSelfData()["Name"]
+	end
 
 	if curTime >= nextUpdate then
 		nextUpdate = curTime + 0.2
