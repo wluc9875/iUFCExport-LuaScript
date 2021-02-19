@@ -51,3 +51,14 @@ You can enter the suggested texts below or just use the texts you'd like.
 
 That's it!
 
+## Configure another base port
+
+In rare cases, you may have to adjust the base port used to communicate with your iPad. By default it's 7676.
+
+To do that, check this line in the `iUFCExport.lua` file:
+
+ ```iUFCExport.OUTBOUND_PORT = 7676 -- change this port if already taken. If you do that, don't forget to adjust the iPad application ports too.```
+
+and replace `7676` by the port of your choice (as long as it's between 1024 and 65534).
+
+Don't forget to adjust the base port on your iPad application, as explained here: https://github.com/wluc9875/iUFCExport-iPad#configuring-other-ports
