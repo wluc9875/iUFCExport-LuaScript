@@ -51,7 +51,32 @@ You can enter the suggested texts below or just use the texts you'd like.
 
 That's it!
 
-## Configure another base port
+## Configure another outbound IP address (optional)
+
+Sometimes, your local network router may not accept local multicast and you wouldn't see anything displayed in the UFCs on your iPad (like the ODU/OSB texts).
+
+In that case, you will have to try another outbound IP address. You would have to replace the `224.0.0.1` address in this line of the iUFCExport.lua script.
+
+```
+iUFCExport.HOST = "224.0.0.1" -- local network multicast IP address
+```
+
+There are 2 options. They require you to get your iPad IP address. You can get your iPad IP address by going to `Settings > Wi-Fi`. Then select your wifi network in the list.  The address you're looking for is in the line `IP address`.
+
+### Option 1
+
+Use your iPad IP address, replacing the last of the 4 numbers by 255. This will allow for a local broadcast.
+
+For example, if your address is something like `192.168.1.33`, use `192.168.1.255`.
+
+If it works for you, fine, you won't need to change it again.
+
+### Option 2
+Use your iPad IP address.
+
+Unfortunately, if only this option works for you, then you won't be able to drive several iPads from DCS.
+
+## Configure another base port (optional)
 
 In rare cases, you may have to adjust the base port used to communicate with your iPad. By default it's 7676.
 
