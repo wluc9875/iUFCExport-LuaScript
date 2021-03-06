@@ -134,7 +134,8 @@ local function getIndicators()
 		indicators = "-\nflirgain\n" .. device0:get_argument_value(189)  .. "\n" .. -- FLIR GAIN switch position
 			"-\ndriftco\n" .. device0:get_argument_value(186)  .. "\n" -- DRIFT C/O switch position
 	elseif aircraft:find("FA%-18") then 
-		indicators = list_indication(6) -- UFC
+		indicators = "-\nadf\n" .. device0:get_argument_value(107)  .. "\n" .. -- ADF switch position
+			list_indication(6) -- UFC
 	elseif aircraft:find("AV8") then 
 		indicators = list_indication(5) .. list_indication(6) -- UFC + ODU
 	elseif aircraft:find("JF%-17") then 
