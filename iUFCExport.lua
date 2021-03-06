@@ -129,18 +129,20 @@ end
 
 local function getIndicators()
 	local indicators = ""
-	if aircraft:find("FA%-18") then 
+	local device0 = GetDevice(0)
+	if aircraft:find("F%-16") then
+		indicators = "-\nflirgain\n" .. device0:get_argument_value(189)  .. "\n" .. -- FLIR GAIN switch position
+			"-\ndriftco\n" .. device0:get_argument_value(186)  .. "\n" -- DRIFT C/O switch position
+	elseif aircraft:find("FA%-18") then 
 		indicators = list_indication(6) -- UFC
 	elseif aircraft:find("AV8") then 
 		indicators = list_indication(5) .. list_indication(6) -- UFC + ODU
 	elseif aircraft:find("JF%-17") then 
-		local device0 = GetDevice(0)
 		indicators = "-\nlights\n" .. device0:get_argument_value(150) .. device0:get_argument_value(151) .. -- OAP + MRK
 			device0:get_argument_value(152) .. device0:get_argument_value(153) .. -- P.U + HNS
 			device0:get_argument_value(154) .. device0:get_argument_value(155) .. "\n" .. -- A/P + FPM
 			list_indication(3) .. list_indication(4) .. list_indication(5) .. list_indication(6) -- 4 UFC lines
 	elseif aircraft:find("SA342") then 
-		local device0 = GetDevice(0)
 		indicators = "-\ndoppler\n" .. device0:get_argument_value(331) .. "\n" .. -- NADIR doppler mode
 			"-\nparameter\n" .. device0:get_argument_value(332) .. "\n" .. -- NADIR selected parameter
 			list_indication(3)
