@@ -128,7 +128,7 @@ end
 --
 
 local function getIndicators()
-	local indicators = nil
+	local indicators = ""
 	if aircraft:find("FA%-18") then 
 		indicators = list_indication(6) -- UFC
 	elseif aircraft:find("AV8") then 
@@ -155,6 +155,7 @@ end
 
 local nextUpdate = 0
 local nextAircraftCheck = 0
+local previousIndicators = ""
 LuaExportAfterNextFrame = function()
 	local curTime = LoGetModelTime()
 	
@@ -166,8 +167,9 @@ LuaExportAfterNextFrame = function()
 	if curTime >= nextUpdate then
 		nextUpdate = curTime + 0.2
 		local indicators = getIndicators()
-		if indicators then
+		if indicators ~= previousIndicators then
 			socket.try(iUFCExport.outboundConn:sendto(indicators, iUFCExport.HOST, iUFCExport.OUTBOUND_PORT))
+			previousIndicators = indicators
 		end
 	end
 
