@@ -10,48 +10,22 @@ Script for DCS (https://www.digitalcombatsimulator.com/) to export plane UFCs (o
 - Finally, copy the `iUFCExport.lua` file to your `Scripts` folder
 
 ## Configure Windows 10 Firewall
-The following configuration is required to let your PC accept the incoming commands from your iPad.
+The following configuration is required to let your PC accept the incoming commands from your iPad and to let the content of your UFC displays to reach your iPad.
 
-### Step 1: Open "Firewall and network protection" settings
-You can find it in your Windows settings.
-![STEP1](./doc-resources/step1.PNG)
+Run application `Windows PowerShell` **as an Administrator**.
+1) execute the following command to open the inbound channel
+````
+New-NetFirewallRule -DisplayName "iUFCExport inbound" -Direction Inbound -Action Allow -Protocol UDP -LocalPort 7676
+````
+2) execute the following command to open the outbound channel
+````
+New-NetFirewallRule -DisplayName "iUFCExport outbound" -Direction Outbound -Action Allow -Protocol UDP -LocalPort 7677
+````
+If you prefer to configure these rules with the `Windows Defender Firewall with Advanced Security` application, please follow this [link](./config-firewall.md). Note that configuring the outbound rule goes through similar steps, except that you have to use port 7677 instead of 7676.
 
-### Step 2: Click on "Advanced settings"
-![STEP2](./doc-resources/step2.PNG)
-This will open the application: "Windows Defender Firewall with Advanced Security"
+## Troubleshooting
 
-### Step 3: Select "Inbound rules"
-![STEP3](./doc-resources/step3.PNG)
-
-### Step 4: Click on "New Rule..."
-![STEP4](./doc-resources/step4.PNG)
-This will open an inbound rule creation wizard.
-
-### Step 5: Select type of rule "Port"
-![STEP5](./doc-resources/step5.PNG)
-Then click "Next"
-
-### Step 6: Select protocol and ports
-For the protocol, choose "UDP".
-For the ports, select "Specific local ports" and enter value 7677.
-![STEP6](./doc-resources/step6.PNG)
-Then click "Next"
-
-### Step 7: Select action: "Allow the connection"
-![STEP7](./doc-resources/step7.PNG)
-Then click "Next"
-
-### Step 8: Leave profile selection by default
-![STEP8](./doc-resources/step8.PNG)
-Then click "Next"
-
-### Step 9: Give the rule a name and description
-You can enter the suggested texts below or just use the texts you'd like.
-![STEP9](./doc-resources/step9.PNG)
-
-That's it!
-
-## Configure another outbound IP address (optional)
+### DCS doesn't update the displays on the iPad
 
 Sometimes, your local network router may not accept local multicast and you wouldn't see anything displayed in the UFCs on your iPad (like the ODU/OSB texts).
 
@@ -63,7 +37,7 @@ iUFCExport.HOST = "224.0.0.1" -- local network multicast IP address
 
 There are 2 options. They require you to get your iPad IP address. You can get your iPad IP address by going to `Settings > Wi-Fi`. Then select your wifi network in the list.  The address you're looking for is in the line `IP address`.
 
-### Option 1
+#### Option 1
 
 Use your iPad IP address, replacing the last of the 4 numbers by 255. This will allow for a local broadcast.
 
@@ -71,19 +45,23 @@ For example, if your address is something like `192.168.1.33`, use `192.168.1.25
 
 If it works for you, fine, you won't need to change it again.
 
-### Option 2
+#### Option 2
 Use your iPad IP address.
 
 Unfortunately, if only this option works for you, then you won't be able to drive several iPads from DCS.
 
-## Configure another base port (optional)
+### Ports 7676 and 7677 are already taken by other applications
 
 In rare cases, you may have to adjust the base port used to communicate with your iPad. By default it's 7676.
 
 To do that, check this line in the `iUFCExport.lua` file:
 
- ```iUFCExport.OUTBOUND_PORT = 7676 -- change this port if already taken. If you do that, don't forget to adjust the iPad application ports too.```
+ ```
+ iUFCExport.OUTBOUND_PORT = 7676 -- change this port if already taken. If you do that, don't forget to adjust the iPad application ports too.
+ ```
 
 and replace `7676` by the port of your choice (as long as it's between 1024 and 65534).
 
-Don't forget to adjust the base port on your iPad application, as explained here: https://github.com/wluc9875/iUFCExport-iPad#configuring-other-ports
+Don't forget to:
+* adjust the base port on your iPad application, as explained here: https://github.com/wluc9875/iUFCExport-iPad#configuring-other-ports
+* adapt your Windows 10 Firewall rules to use your new ports (base port and base port + 1)
