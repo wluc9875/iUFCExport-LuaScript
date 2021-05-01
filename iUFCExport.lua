@@ -132,6 +132,10 @@ local function getIndicators()
 	local device0 = GetDevice(0)
 	if aircraft:find("A%-10C") then
 		indicators = "-\ncaution\n" .. device0:get_argument_value(404)  .. "\n" -- MASTER CAUTION light
+	elseif aircraft:find("AJS37") then
+		indicators = "-\ndatasel\n" .. device0:get_argument_value(200)  .. "\n" .. -- CK37 data selector
+			"-\ninut\n" .. device0:get_argument_value(201)  .. "\n" .. -- CK37 INUT selector
+			list_indication(2) -- CK37 displayed data
 	elseif aircraft:find("F%-16") then
 		indicators = "-\nflirgain\n" .. device0:get_argument_value(189)  .. "\n" .. -- FLIR GAIN switch position
 			"-\ndriftco\n" .. device0:get_argument_value(186)  .. "\n" -- DRIFT C/O switch position
