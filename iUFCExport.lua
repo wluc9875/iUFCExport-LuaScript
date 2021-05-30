@@ -149,6 +149,19 @@ local function getIndicators()
 			device0:get_argument_value(152) .. device0:get_argument_value(153) .. -- P.U + HNS
 			device0:get_argument_value(154) .. device0:get_argument_value(155) .. "\n" .. -- A/P + FPM
 			list_indication(3) .. list_indication(4) .. list_indication(5) .. list_indication(6) -- 4 UFC lines
+	elseif aircraft:find("Ka%-50") then 
+		indicators = "-\nrotator\n" .. device0:get_argument_value(324)  .. "\n" .. -- ROTATOR
+			"-\nfixmethod\n" .. device0:get_argument_value(325)  .. "\n" .. -- FIXMETHOD
+			"-\ndatalink\n" .. device0:get_argument_value(326)  .. "\n" .. -- DATALINK
+			"-\nlights\n" .. device0:get_argument_value(315) .. " " .. device0:get_argument_value(151) .. " " .. -- WAYPOINT + REALIGN
+			device0:get_argument_value(316) .. " " .. device0:get_argument_value(520) .. " " .. -- FIX + PRECISE_ALIGN
+			device0:get_argument_value(317) .. " " .. device0:get_argument_value(521) .. " " .. -- AIRFIELDS + NORMAL_ALIGN
+			device0:get_argument_value(318) .. " " .. device0:get_argument_value(313) .. " " .. -- TARGETS + ENTER
+			device0:get_argument_value(314) .. " " .. device0:get_argument_value(522) .. " " .. -- CLEAR + INITIAL_POS
+			device0:get_argument_value(319) .. " " .. device0:get_argument_value(320) .. " " .. -- SELF_COORD + DTA_DH
+			device0:get_argument_value(321) .. " " .. device0:get_argument_value(322) .. " " .. -- WIND + THEAD
+			device0:get_argument_value(323) .. "\n" .. -- BEARING_RANGE		
+			list_indication(5) -- display lines
 	elseif aircraft:find("SA342") then 
 		indicators = "-\ndoppler\n" .. device0:get_argument_value(331) .. "\n" .. -- NADIR doppler mode
 			"-\nparameter\n" .. device0:get_argument_value(332) .. "\n" .. -- NADIR selected parameter
