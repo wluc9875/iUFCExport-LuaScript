@@ -24,6 +24,7 @@
 
 iUFCExport = {}
 iUFCExport.HOST = "224.0.0.1" -- local network multicast IP address
+--iUFCExport.HOST = "192.168.86.33" -- local network multicast IP address
 iUFCExport.OUTBOUND_PORT = 7676 -- change this port if already taken. If you do that, don't forget to adjust the iPad application ports too.
 iUFCExport.INBOUND_PORT = iUFCExport.OUTBOUND_PORT + 1
 
@@ -133,8 +134,8 @@ local function getIndicators()
 	if aircraft:find("A%-10C") then
 		indicators = "-\ncaution\n" .. device0:get_argument_value(404)  .. "\n" -- MASTER CAUTION light
 	elseif aircraft:find("AJS37") then
-		indicators = "-\ndatasel\n" .. device0:get_argument_value(200)  .. "\n" .. -- CK37 data selector
-			"-\ninut\n" .. device0:get_argument_value(201)  .. "\n" .. -- CK37 INUT selector
+		indicators = "-\ndatasel\n" .. device0:get_argument_value(200) .. "\n" .. -- CK37 data selector
+			"-\ninut\n" .. device0:get_argument_value(201) .. "\n" .. -- CK37 INUT selector
 			list_indication(2) -- CK37 displayed data
 	elseif aircraft:find("F%-16") then
 		indicators = "-\nflirgain\n" .. device0:get_argument_value(189)  .. "\n" .. -- FLIR GAIN switch position
@@ -145,14 +146,21 @@ local function getIndicators()
 	elseif aircraft:find("AV8") then 
 		indicators = list_indication(5) .. list_indication(6) -- UFC + ODU
 	elseif aircraft:find("JF%-17") then 
-		indicators = "-\nlights\n" .. device0:get_argument_value(150) .. device0:get_argument_value(151) .. -- OAP + MRK
+		indicators = "-\nlights\n" .. device0:get_argument_value(150) .. device0:get_argument_value(519) .. -- OAP + MRK
 			device0:get_argument_value(152) .. device0:get_argument_value(153) .. -- P.U + HNS
 			device0:get_argument_value(154) .. device0:get_argument_value(155) .. "\n" .. -- A/P + FPM
 			list_indication(3) .. list_indication(4) .. list_indication(5) .. list_indication(6) -- 4 UFC lines
+	elseif aircraft:find("M%-2000") then 
+		indicators = "-\nrotator\n" .. device0:get_argument_value(574) .. "\n" .. -- ROTATOR
+			"-\nlights\n" .. device0:get_argument_value(595) .. " " .. device0:get_argument_value(597) .. " " .. -- EFF + INS
+			device0:get_argument_value(571) .. " " .. device0:get_argument_value(573) .. " " .. -- PREP + DEST
+			device0:get_argument_value(577) .. " " .. device0:get_argument_value(579) .. " " .. -- BAD + REC
+			device0:get_argument_value(581) .. " " .. device0:get_argument_value(583) .. "\n" .. -- VAL + MRC		
+			list_indication(9) .. list_indication(10) -- display lines
 	elseif aircraft:find("Ka%-50") then 
-		indicators = "-\nrotator\n" .. device0:get_argument_value(324)  .. "\n" .. -- ROTATOR
-			"-\nfixmethod\n" .. device0:get_argument_value(325)  .. "\n" .. -- FIXMETHOD
-			"-\ndatalink\n" .. device0:get_argument_value(326)  .. "\n" .. -- DATALINK
+		indicators = "-\nrotator\n" .. device0:get_argument_value(324) .. "\n" .. -- ROTATOR
+            		"-\nfixmethod\n" .. device0:get_argument_value(325) .. "\n" .. -- FIXMETHOD
+            		"-\ndatalink\n" .. device0:get_argument_value(326) .. "\n" .. -- DATALINK
 			"-\nlights\n" .. device0:get_argument_value(315) .. " " .. device0:get_argument_value(151) .. " " .. -- WAYPOINT + REALIGN
 			device0:get_argument_value(316) .. " " .. device0:get_argument_value(520) .. " " .. -- FIX + PRECISE_ALIGN
 			device0:get_argument_value(317) .. " " .. device0:get_argument_value(521) .. " " .. -- AIRFIELDS + NORMAL_ALIGN
@@ -199,4 +207,3 @@ LuaExportAfterNextFrame = function()
 		PrevExport.LuaExportAfterNextFrame()
 	end
 end 
-
