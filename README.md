@@ -15,13 +15,13 @@ The following configuration is required to let your PC accept the incoming comma
 Run application `Windows PowerShell` **as an Administrator**.
 1) execute the following command to open the inbound channel
 ````
-New-NetFirewallRule -DisplayName "iUFCExport inbound" -Direction Inbound -Action Allow -Protocol UDP -LocalPort 7676
+New-NetFirewallRule -DisplayName "iUFCExport inbound" -Direction Inbound -Action Allow -Protocol UDP -LocalPort 7677
 ````
 2) execute the following command to open the outbound channel
 ````
-New-NetFirewallRule -DisplayName "iUFCExport outbound" -Direction Outbound -Action Allow -Protocol UDP -LocalPort 7677
+New-NetFirewallRule -DisplayName "iUFCExport outbound" -Direction Outbound -Action Allow -Protocol UDP -LocalPort 7676
 ````
-If you prefer to configure these rules with the `Windows Defender Firewall with Advanced Security` application, please follow this [link](./config-firewall.md). Note that configuring the outbound rule goes through similar steps, except that you have to use port 7677 instead of 7676.
+If you prefer to configure these rules with the `Windows Defender Firewall with Advanced Security` application, please follow this [link](./config-firewall.md). Note that configuring the outbound rule goes through similar steps, except that you have to use port 7676 instead of 7677.
 
 ## Troubleshooting
 
