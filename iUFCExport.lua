@@ -146,7 +146,7 @@ local function getIndicators()
 	elseif aircraft:find("AV8") then 
 		indicators = list_indication(5) .. list_indication(6) -- UFC + ODU
 	elseif aircraft:find("JF%-17") then 
-		indicators = "-\nlights\n" .. device0:get_argument_value(150) .. device0:get_argument_value(519) .. -- OAP + MRK
+		indicators = "-\nlights\n" .. device0:get_argument_value(150) .. device0:get_argument_value(151) .. -- OAP + MRK
 			device0:get_argument_value(152) .. device0:get_argument_value(153) .. -- P.U + HNS
 			device0:get_argument_value(154) .. device0:get_argument_value(155) .. "\n" .. -- A/P + FPM
 			list_indication(3) .. list_indication(4) .. list_indication(5) .. list_indication(6) -- 4 UFC lines
