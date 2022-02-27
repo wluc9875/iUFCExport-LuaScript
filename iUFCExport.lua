@@ -125,6 +125,33 @@ LuaExportBeforeNextFrame = function()
 end
 
 --
+-- build DCS output line
+--
+
+local function buildDCSOutput(customEntries, listEntries)
+	local dcsOutput = ""
+	local device0 = GetDevice(0)
+	if customEntries ~= nil then
+		for key, value in pairs(customEntries) do
+			dcsOutput = dcsOutput .. "-\n" .. key .. "\n"
+			for indKey, indValue in ipairs(value) do
+				if indKey > 1 then
+					dcsOutput = dcsOutput .. " "
+				end
+				dcsOutput = dcsOutput .. device0:get_argument_value(indValue)
+			end
+			dcsOutput = dcsOutput .. "\n"
+		end
+	end
+	if listEntries ~= nil then
+		for key, value in ipairs(listEntries) do
+			dcsOutput = dcsOutput .. list_indication(value)
+		end
+	end
+	return dcsOutput
+end
+
+--
 -- Read DCS displays content and instrument data depending on the current plane
 --
 
@@ -132,7 +159,7 @@ local function getIndicators()
 	local indicators = ""
 	local device0 = GetDevice(0)
 	if aircraft:find("A%-10C") then
-		indicators = "-\ncaution\n" .. device0:get_argument_value(404)  .. "\n" -- MASTER CAUTION light
+		indicators = buildDCSOutput({caution = {404}}, nil) -- MASTER CAUTION light
 	elseif aircraft:find("AJS37") then
 		indicators = "-\ndatasel\n" .. device0:get_argument_value(200) .. "\n" .. -- CK37 data selector
 			"-\ninut\n" .. device0:get_argument_value(201) .. "\n" .. -- CK37 INUT selector
@@ -141,8 +168,8 @@ local function getIndicators()
 		indicators = "-\nflirgain\n" .. device0:get_argument_value(189)  .. "\n" .. -- FLIR GAIN switch position
 			"-\ndriftco\n" .. device0:get_argument_value(186)  .. "\n" -- DRIFT C/O switch position
 	elseif aircraft:find("FA%-18") then 
-		indicators = "-\nadf\n" .. device0:get_argument_value(107)  .. "\n" .. -- ADF switch position
-			list_indication(6) -- UFC
+		indicators = buildDCSOutput({adf={107}}, -- ADF switch
+			{6}) -- UFC
 	elseif aircraft:find("AV8") then 
 		indicators = list_indication(5) .. list_indication(6) -- UFC + ODU
 	elseif aircraft:find("JF%-17") then 
