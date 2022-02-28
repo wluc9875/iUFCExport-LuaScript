@@ -166,7 +166,7 @@ local function getIndicators()
 			{2}) -- CK37 displayed data
 	elseif aircraft:find("F%-16") then
 		indicators = buildDCSOutput({flirgain = {189}, driftco = {186},
-			cmsswitches={375, 374, 373, 371, 365, 366, 367, 368, 377, 378}}, nil)
+			cmsswitches={375, 374, 373, 371, 365, 366, 367, 368, 377, 378}}, {16})
 	elseif aircraft:find("FA%-18") then 
 		indicators = buildDCSOutput({adf={107}}, -- ADF switch
 			{6}) -- UFC
