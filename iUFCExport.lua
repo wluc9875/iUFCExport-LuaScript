@@ -161,46 +161,30 @@ local function getIndicators()
 	if aircraft:find("A%-10C") then
 		indicators = buildDCSOutput({caution = {404}}, nil) -- MASTER CAUTION light
 	elseif aircraft:find("AJS37") then
-		indicators = "-\ndatasel\n" .. device0:get_argument_value(200) .. "\n" .. -- CK37 data selector
-			"-\ninut\n" .. device0:get_argument_value(201) .. "\n" .. -- CK37 INUT selector
-			list_indication(2) -- CK37 displayed data
+		indicators = buildDCSOutput({datasel = {200}, -- CK37 data selector
+			inut = {201}}, -- CK37 INUT selector
+			{2}) -- CK37 displayed data
 	elseif aircraft:find("F%-16") then
-		indicators = "-\nflirgain\n" .. device0:get_argument_value(189)  .. "\n" .. -- FLIR GAIN switch position
-			"-\ndriftco\n" .. device0:get_argument_value(186)  .. "\n" -- DRIFT C/O switch position
+		indicators = buildDCSOutput({flirgain = {189}, -- FLIR GAIN switch position
+			driftco = {186}}, nil) -- DRIFT C/O switch position
 	elseif aircraft:find("FA%-18") then 
 		indicators = buildDCSOutput({adf={107}}, -- ADF switch
 			{6}) -- UFC
 	elseif aircraft:find("AV8") then 
-		indicators = list_indication(5) .. list_indication(6) -- UFC + ODU
+		indicators = buildDCSOutput(nil, {5, 6}) -- UFC + ODU
 	elseif aircraft:find("JF%-17") then 
-		indicators = "-\nlights\n" .. device0:get_argument_value(150) .. device0:get_argument_value(151) .. -- OAP + MRK
-			device0:get_argument_value(152) .. device0:get_argument_value(153) .. -- P.U + HNS
-			device0:get_argument_value(154) .. device0:get_argument_value(155) .. "\n" .. -- A/P + FPM
-			list_indication(3) .. list_indication(4) .. list_indication(5) .. list_indication(6) -- 4 UFC lines
+		indicators = buildDCSOutput({lights={150, 151, 152, 153, 154, 155}}, -- UFCP button lights
+			{3, 4, 5, 6}) -- the 4 UFC 
 	elseif aircraft:find("M%-2000") then 
-		indicators = "-\nrotator\n" .. device0:get_argument_value(574) .. "\n" .. -- ROTATOR
-			"-\nlights\n" .. device0:get_argument_value(595) .. " " .. device0:get_argument_value(597) .. " " .. -- EFF + INS
-			device0:get_argument_value(571) .. " " .. device0:get_argument_value(573) .. " " .. -- PREP + DEST
-			device0:get_argument_value(577) .. " " .. device0:get_argument_value(579) .. " " .. -- BAD + REC
-			device0:get_argument_value(581) .. " " .. device0:get_argument_value(583) .. "\n" .. -- VAL + MRC		
-			list_indication(9) .. list_indication(10) -- display lines
+		indicators = buildDCSOutput({rotator={574}, -- ROTATOR
+			lights={595, 597, 571, 573, 577, 579, 581, 583}}, -- PCN lights (TODO: something not working properly with last 4 indicators)
+			{9, 10}) -- PCN display lines
 	elseif aircraft:find("Ka%-50") then 
-		indicators = "-\nrotator\n" .. device0:get_argument_value(324) .. "\n" .. -- ROTATOR
-            		"-\nfixmethod\n" .. device0:get_argument_value(325) .. "\n" .. -- FIXMETHOD
-            		"-\ndatalink\n" .. device0:get_argument_value(326) .. "\n" .. -- DATALINK
-			"-\nlights\n" .. device0:get_argument_value(315) .. " " .. device0:get_argument_value(151) .. " " .. -- WAYPOINT + REALIGN
-			device0:get_argument_value(316) .. " " .. device0:get_argument_value(520) .. " " .. -- FIX + PRECISE_ALIGN
-			device0:get_argument_value(317) .. " " .. device0:get_argument_value(521) .. " " .. -- AIRFIELDS + NORMAL_ALIGN
-			device0:get_argument_value(318) .. " " .. device0:get_argument_value(313) .. " " .. -- TARGETS + ENTER
-			device0:get_argument_value(314) .. " " .. device0:get_argument_value(522) .. " " .. -- CLEAR + INITIAL_POS
-			device0:get_argument_value(319) .. " " .. device0:get_argument_value(320) .. " " .. -- SELF_COORD + DTA_DH
-			device0:get_argument_value(321) .. " " .. device0:get_argument_value(322) .. " " .. -- WIND + THEAD
-			device0:get_argument_value(323) .. "\n" .. -- BEARING_RANGE		
-			list_indication(5) -- display lines
-	elseif aircraft:find("SA342") then 
-		indicators = "-\ndoppler\n" .. device0:get_argument_value(331) .. "\n" .. -- NADIR doppler mode
-			"-\nparameter\n" .. device0:get_argument_value(332) .. "\n" .. -- NADIR selected parameter
-			list_indication(3)
+		indicators = buildDCSOutput({rotator={324}, -- PVI rotator
+			fixmethod={325}, -- PVI fix method
+			datalink={326}, -- PVI datalink
+			lights={315, 151, 316, 520, 317, 521, 318, 313, 314, 522, 319, 320, 321, 322, 323}}, -- PVI lights
+			{5}) -- PVI display lines
 	end
 	return indicators
 end
