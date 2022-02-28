@@ -165,8 +165,8 @@ local function getIndicators()
 			inut = {201}}, -- CK37 INUT selector
 			{2}) -- CK37 displayed data
 	elseif aircraft:find("F%-16") then
-		indicators = buildDCSOutput({flirgain = {189}, -- FLIR GAIN switch position
-			driftco = {186}}, nil) -- DRIFT C/O switch position
+		indicators = buildDCSOutput({flirgain = {189}, driftco = {186},
+			cmsswitches={375, 374, 373, 371, 365, 366, 367, 368, 377, 378}}, nil)
 	elseif aircraft:find("FA%-18") then 
 		indicators = buildDCSOutput({adf={107}}, -- ADF switch
 			{6}) -- UFC
