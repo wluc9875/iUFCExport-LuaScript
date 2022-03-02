@@ -79,13 +79,19 @@ end
 -- Interpret the commands sent from the iPad
 --
 
+local forcedUpdate = false
+
 local function processCommand(line)
 	local deviceIdString, commandIdString, argumentString = line:match("^([^ ]+) ([^ ]+) (.*)")
 	local deviceId = tonumber(deviceIdString)
 	local commandId = tonumber(commandIdString)
 	local argument = tonumber(argumentString)
 	
-	GetDevice(deviceId):performClickableAction(commandId, argument)
+	if deviceId ~= 999 then
+		GetDevice(deviceId):performClickableAction(commandId, argument)
+	else
+		forcedUpdate = true
+	end
 end
 
 --
@@ -125,6 +131,33 @@ LuaExportBeforeNextFrame = function()
 end
 
 --
+-- build DCS output line
+--
+
+local function buildDCSOutput(customEntries, listEntries)
+	local dcsOutput = ""
+	local device0 = GetDevice(0)
+	if customEntries ~= nil then
+		for key, value in pairs(customEntries) do
+			dcsOutput = dcsOutput .. "-\n" .. key .. "\n"
+			for indKey, indValue in ipairs(value) do
+				if indKey > 1 then
+					dcsOutput = dcsOutput .. " "
+				end
+				dcsOutput = dcsOutput .. device0:get_argument_value(indValue)
+			end
+			dcsOutput = dcsOutput .. "\n"
+		end
+	end
+	if listEntries ~= nil then
+		for key, value in ipairs(listEntries) do
+			dcsOutput = dcsOutput .. list_indication(value)
+		end
+	end
+	return dcsOutput
+end
+
+--
 -- Read DCS displays content and instrument data depending on the current plane
 --
 
@@ -132,48 +165,38 @@ local function getIndicators()
 	local indicators = ""
 	local device0 = GetDevice(0)
 	if aircraft:find("A%-10C") then
-		indicators = "-\ncaution\n" .. device0:get_argument_value(404)  .. "\n" -- MASTER CAUTION light
+		indicators = buildDCSOutput({caution = {404},
+			cmsswitches={360, 361, 362, 363, 358, 364}}, 
+			{7}) -- CMSP lines
 	elseif aircraft:find("AJS37") then
-		indicators = "-\ndatasel\n" .. device0:get_argument_value(200) .. "\n" .. -- CK37 data selector
-			"-\ninut\n" .. device0:get_argument_value(201) .. "\n" .. -- CK37 INUT selector
-			list_indication(2) -- CK37 displayed data
+		indicators = buildDCSOutput({datasel = {200}, -- CK37 data selector
+			inut = {201},
+			cmsswitches={317, 318, 319, 321, 322, 320}},
+			{2}) -- CK37 displayed data
 	elseif aircraft:find("F%-16") then
-		indicators = "-\nflirgain\n" .. device0:get_argument_value(189)  .. "\n" .. -- FLIR GAIN switch position
-			"-\ndriftco\n" .. device0:get_argument_value(186)  .. "\n" -- DRIFT C/O switch position
+		indicators = buildDCSOutput({flirgain = {189}, driftco = {186},
+			cmsswitches={375, 374, 373, 371, 365, 366, 367, 368, 377, 378}}, {16})
 	elseif aircraft:find("FA%-18") then 
-		indicators = "-\nadf\n" .. device0:get_argument_value(107)  .. "\n" .. -- ADF switch position
-			list_indication(6) -- UFC
+		indicators = buildDCSOutput({adf={107},
+			cmsswitches={517, 248}},
+			{6}) -- UFC lines
 	elseif aircraft:find("AV8") then 
-		indicators = list_indication(5) .. list_indication(6) -- UFC + ODU
+		indicators = buildDCSOutput(nil, {5, 6}) -- UFC + ODU
 	elseif aircraft:find("JF%-17") then 
-		indicators = "-\nlights\n" .. device0:get_argument_value(150) .. device0:get_argument_value(151) .. -- OAP + MRK
-			device0:get_argument_value(152) .. device0:get_argument_value(153) .. -- P.U + HNS
-			device0:get_argument_value(154) .. device0:get_argument_value(155) .. "\n" .. -- A/P + FPM
-			list_indication(3) .. list_indication(4) .. list_indication(5) .. list_indication(6) -- 4 UFC lines
+		indicators = buildDCSOutput({lights={150, 151, 152, 153, 154, 155}}, -- UFCP button lights
+			{3, 4, 5, 6}) -- the 4 UFC 
 	elseif aircraft:find("M%-2000") then 
-		indicators = "-\nrotator\n" .. device0:get_argument_value(574) .. "\n" .. -- ROTATOR
-			"-\nlights\n" .. device0:get_argument_value(595) .. " " .. device0:get_argument_value(597) .. " " .. -- EFF + INS
-			device0:get_argument_value(571) .. " " .. device0:get_argument_value(573) .. " " .. -- PREP + DEST
-			device0:get_argument_value(577) .. " " .. device0:get_argument_value(579) .. " " .. -- BAD + REC
-			device0:get_argument_value(581) .. " " .. device0:get_argument_value(583) .. "\n" .. -- VAL + MRC		
-			list_indication(9) .. list_indication(10) -- display lines
+		indicators = buildDCSOutput({rotator={574}, -- PCN ROTATOR
+			lights={595, 597, 571, 573, 577, 579, 581, 583}, -- PCN lights (TODO not working properly)
+			cmsswitches={605, 606, 607, 608, 609, 610}},
+			{9, 10}) -- PCN display lines
 	elseif aircraft:find("Ka%-50") then 
-		indicators = "-\nrotator\n" .. device0:get_argument_value(324) .. "\n" .. -- ROTATOR
-            		"-\nfixmethod\n" .. device0:get_argument_value(325) .. "\n" .. -- FIXMETHOD
-            		"-\ndatalink\n" .. device0:get_argument_value(326) .. "\n" .. -- DATALINK
-			"-\nlights\n" .. device0:get_argument_value(315) .. " " .. device0:get_argument_value(151) .. " " .. -- WAYPOINT + REALIGN
-			device0:get_argument_value(316) .. " " .. device0:get_argument_value(520) .. " " .. -- FIX + PRECISE_ALIGN
-			device0:get_argument_value(317) .. " " .. device0:get_argument_value(521) .. " " .. -- AIRFIELDS + NORMAL_ALIGN
-			device0:get_argument_value(318) .. " " .. device0:get_argument_value(313) .. " " .. -- TARGETS + ENTER
-			device0:get_argument_value(314) .. " " .. device0:get_argument_value(522) .. " " .. -- CLEAR + INITIAL_POS
-			device0:get_argument_value(319) .. " " .. device0:get_argument_value(320) .. " " .. -- SELF_COORD + DTA_DH
-			device0:get_argument_value(321) .. " " .. device0:get_argument_value(322) .. " " .. -- WIND + THEAD
-			device0:get_argument_value(323) .. "\n" .. -- BEARING_RANGE		
-			list_indication(5) -- display lines
-	elseif aircraft:find("SA342") then 
-		indicators = "-\ndoppler\n" .. device0:get_argument_value(331) .. "\n" .. -- NADIR doppler mode
-			"-\nparameter\n" .. device0:get_argument_value(332) .. "\n" .. -- NADIR selected parameter
-			list_indication(3)
+		indicators = buildDCSOutput({rotator={324}, -- PVI rotator
+			fixmethod={325}, -- PVI fix method
+			datalink={326}, -- PVI datalink
+			lights={315, 151, 316, 520, 317, 521, 318, 313, 314, 522, 319, 320, 321, 322, 323}, -- PVI lights
+			cmsswitches={36, 541, 542, 37}}, 
+			{5, 7}) -- PVI display lines + UV26 
 	end
 	return indicators
 end
@@ -197,9 +220,10 @@ LuaExportAfterNextFrame = function()
 	if curTime >= nextUpdate then
 		nextUpdate = curTime + 0.2
 		local indicators = getIndicators()
-		if indicators ~= previousIndicators then
+		if forcedUpdate or indicators ~= previousIndicators then
 			socket.try(iUFCExport.outboundConn:sendto(indicators, iUFCExport.HOST, iUFCExport.OUTBOUND_PORT))
 			previousIndicators = indicators
+			forcedUpdate = false
 		end
 	end
 
