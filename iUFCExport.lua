@@ -79,13 +79,19 @@ end
 -- Interpret the commands sent from the iPad
 --
 
+local forcedUpdate = false
+
 local function processCommand(line)
 	local deviceIdString, commandIdString, argumentString = line:match("^([^ ]+) ([^ ]+) (.*)")
 	local deviceId = tonumber(deviceIdString)
 	local commandId = tonumber(commandIdString)
 	local argument = tonumber(argumentString)
 	
-	GetDevice(deviceId):performClickableAction(commandId, argument)
+	if deviceId ~= 999 then
+		GetDevice(deviceId):performClickableAction(commandId, argument)
+	else
+		forcedUpdate = true
+	end
 end
 
 --
@@ -159,32 +165,38 @@ local function getIndicators()
 	local indicators = ""
 	local device0 = GetDevice(0)
 	if aircraft:find("A%-10C") then
-		indicators = buildDCSOutput({caution = {404}}, nil) -- MASTER CAUTION light
+		indicators = buildDCSOutput({caution = {404},
+			cmsswitches={360, 361, 362, 363, 358, 364}}, 
+			{7}) -- CMSP lines
 	elseif aircraft:find("AJS37") then
 		indicators = buildDCSOutput({datasel = {200}, -- CK37 data selector
-			inut = {201}}, -- CK37 INUT selector
+			inut = {201},
+			cmsswitches={317, 318, 319, 321, 322, 320}},
 			{2}) -- CK37 displayed data
 	elseif aircraft:find("F%-16") then
 		indicators = buildDCSOutput({flirgain = {189}, driftco = {186},
 			cmsswitches={375, 374, 373, 371, 365, 366, 367, 368, 377, 378}}, {16})
 	elseif aircraft:find("FA%-18") then 
-		indicators = buildDCSOutput({adf={107}}, -- ADF switch
-			{6}) -- UFC
+		indicators = buildDCSOutput({adf={107},
+			cmsswitches={517, 248}},
+			{6}) -- UFC lines
 	elseif aircraft:find("AV8") then 
 		indicators = buildDCSOutput(nil, {5, 6}) -- UFC + ODU
 	elseif aircraft:find("JF%-17") then 
 		indicators = buildDCSOutput({lights={150, 151, 152, 153, 154, 155}}, -- UFCP button lights
 			{3, 4, 5, 6}) -- the 4 UFC 
 	elseif aircraft:find("M%-2000") then 
-		indicators = buildDCSOutput({rotator={574}, -- ROTATOR
-			lights={595, 597, 571, 573, 577, 579, 581, 583}}, -- PCN lights (TODO: something not working properly with last 4 indicators)
+		indicators = buildDCSOutput({rotator={574}, -- PCN ROTATOR
+			lights={595, 597, 571, 573, 577, 579, 581, 583}, -- PCN lights (TODO not working properly)
+			cmsswitches={605, 606, 607, 608, 609, 610}},
 			{9, 10}) -- PCN display lines
 	elseif aircraft:find("Ka%-50") then 
 		indicators = buildDCSOutput({rotator={324}, -- PVI rotator
 			fixmethod={325}, -- PVI fix method
 			datalink={326}, -- PVI datalink
-			lights={315, 151, 316, 520, 317, 521, 318, 313, 314, 522, 319, 320, 321, 322, 323}}, -- PVI lights
-			{5}) -- PVI display lines
+			lights={315, 151, 316, 520, 317, 521, 318, 313, 314, 522, 319, 320, 321, 322, 323}, -- PVI lights
+			cmsswitches={36, 541, 542, 37}}, 
+			{5, 7}) -- PVI display lines + UV26 
 	end
 	return indicators
 end
@@ -208,9 +220,10 @@ LuaExportAfterNextFrame = function()
 	if curTime >= nextUpdate then
 		nextUpdate = curTime + 0.2
 		local indicators = getIndicators()
-		if indicators ~= previousIndicators then
+		if forcedUpdate or indicators ~= previousIndicators then
 			socket.try(iUFCExport.outboundConn:sendto(indicators, iUFCExport.HOST, iUFCExport.OUTBOUND_PORT))
 			previousIndicators = indicators
+			forcedUpdate = false
 		end
 	end
 
