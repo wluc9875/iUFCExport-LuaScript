@@ -197,6 +197,10 @@ local function getIndicators()
 			lights={315, 151, 316, 520, 317, 521, 318, 313, 314, 522, 319, 320, 321, 322, 323}, -- PVI lights
 			cmsswitches={36, 541, 542, 37}}, 
 			{5, 7}) -- PVI display lines + UV26 
+	elseif aircraft:find("AH%-64D") then
+		indicators = buildDCSOutput(nil, {15})
+	elseif aircraft:find("F%-15E") then 
+		indicators = buildDCSOutput(nil, {9})
 	end
 	return indicators
 end
