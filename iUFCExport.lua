@@ -224,11 +224,11 @@ LuaExportAfterNextFrame = function()
 	if curTime >= nextUpdate then
 		nextUpdate = curTime + 0.2
 		local indicators = getIndicators()
-		if forcedUpdate or indicators ~= previousIndicators then
+		-- if forcedUpdate or indicators ~= previousIndicators then
 			socket.try(iUFCExport.outboundConn:sendto(indicators, iUFCExport.HOST, iUFCExport.OUTBOUND_PORT))
 			previousIndicators = indicators
 			forcedUpdate = false
-		end
+		-- end
 	end
 
 	if PrevExport.LuaExportAfterNextFrame then
